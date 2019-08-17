@@ -6,7 +6,7 @@ use gdk_pixbuf::{Colorspace, InterpType, Pixbuf};
 use gio::prelude::*;
 use gtk::prelude::*;
 use gtk::Image;
-use gtk::{Application, ApplicationWindow, Button, EventBox};
+use gtk::{Application, ApplicationWindow, Button, EventBox, ScrolledWindow};
 use std::io::BufReader;
 
 use crate::mandelbrot::{mandelbrot, Window};
@@ -50,20 +50,25 @@ fn main() {
         let window = ApplicationWindow::new(app);
         window.set_title("First GTK+ Program");
         window.set_default_size(500, 500);
-        
+
+
         let pixbuf = Pixbuf::new(Colorspace::Rgb, false, 8, 500, 500).unwrap();
-        bytes_to_image_buffer(&img, &pixbuf);
+        bytes_to_image_buffer(&mandelbrot(50, 32, Window::default(), 500, 500), &pixbuf);
         
-        let event_box = EventBox::new();
         let img = Image::new();
         img.set_property_pixbuf(Some(&pixbuf));
 
-        event_box.connect_check_resize(|event| {
-            
-        });
-        event_box.add(&img);
+        let scrolled_window = ScrolledWindow::new(gtk::NONE_ADJUSTMENT, gtk::NONE_ADJUSTMENT);
+
         
-        window.add(&event_box);
+        window.connect_check_resize(|event|{
+            println!("Resize");
+            
+
+        });
+
+        scrolled_window.add(&img);
+        window.add(&scrolled_window);
 
         let button = Button::new_with_label("Click me!");
         button.connect_clicked(|_| {
