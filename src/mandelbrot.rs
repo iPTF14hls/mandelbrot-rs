@@ -85,10 +85,10 @@ impl Window {
             Aspect::Default => (1., 1.),
             Aspect::InAccordenceWith((w, h)) => {
                 let (larg, smal, swap) = if w > h {
-                    (w as f64, h as f64, false)
+                    (f64::from(w), f64::from(h), false)
                 }
                 else {
-                    (h as f64, w as f64, true)
+                    (f64::from(h), f64::from(w), true)
                 };
 
                 let s = smal / larg;
@@ -131,7 +131,7 @@ pub fn contains(iters: usize, c: &Complex<f64>) -> Option<NonZeroUsize> {
 }
 
 pub fn mandelbrot(iters: usize, threads: usize, win: Window, wid: u32, hei: u32) -> Vec<u8> {
-    let max = (wid as u64)*(hei as u64);
+    let max = u64::from(wid)*u64::from(hei);
     let mut ranges = Vec::with_capacity(threads);
     
     for i in 1..=threads {
