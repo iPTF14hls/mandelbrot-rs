@@ -5,10 +5,21 @@ use gdk_pixbuf::{Pixbuf, Colorspace, InterpType};
 use crate::mandelbrot;
 use std::sync::mpsc::{channel, Sender};
 
+#[derive(PartialEq, Clone, Copy)]
 pub struct UpdateInfo {
     iter: usize,
     dim: (u32, u32),
     window: mandelbrot::Window,
+}
+
+impl Default for UpdateInfo {
+    fn default() -> UpdateInfo {
+        UpdateInfo {
+            iter: 0,
+            dim: (0, 0),
+            window: mandelbrot::Window::default(),
+        }
+    }
 }
 
 pub struct Model {
@@ -96,6 +107,8 @@ impl Update for Win {
         let (update, incoming) = channel();
 
         std::thread::spawn(move || {
+            let mut pdata = UpdateInfo::default();
+
             loop {
                 let render_data: UpdateInfo = incoming.recv().unwrap();
 
@@ -104,6 +117,13 @@ impl Update for Win {
                     Some(data) => data,
                     None => render_data,
                 };
+
+                if render_data != pdata {
+                    pdata = render_data;
+                }
+                else {
+                    continue;
+                }
 
                 let (w, h) = render_data.dim;
                 let data = mandelbrot::mandelbrot(render_data.iter, 32, render_data.window, w, h);
@@ -136,7 +156,7 @@ impl Update for Win {
                 let h = scrolled.get_allocated_height();
 
                 self.model.update.send(UpdateInfo{
-                    iter: 50,
+                    iter: 100,
                     dim: (w as u32, h as u32),
                     window: mandelbrot::Window::default(),
                 }).unwrap();
@@ -170,13 +190,15 @@ impl Widget for Win {
         window.set_default_size(500, 500);
         window.set_title("mandelbrot-rs");
 
+        let scrolled_window = model.scrolled.clone();
+        let w = scrolled_window.get_allocated_width();
+        let h = scrolled_window.get_allocated_height();
         model.update.send(UpdateInfo{
-            iter: 50,
-            dim: (500, 500),
+            iter: 100,
+            dim: (w as u32, h as u32),
             window: mandelbrot::Window::default(),
         }).unwrap();
         
-        let scrolled_window = model.scrolled.clone();
 
         // Connect the signal `delete_event` to send the `Quit` message.
         connect!(relm, window, connect_delete_event(_, _), return (Some(Msg::Quit), Inhibit(false)));

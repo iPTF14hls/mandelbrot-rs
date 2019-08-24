@@ -65,7 +65,7 @@ fn visualiser(c: Option<f64>) -> Vec<u8> {
     }
 }
 
-#[derive(Clone)]
+#[derive(Copy, Clone, PartialEq)]
 pub struct Window {
     pub p: (f64, f64),
     pub r: f64,
@@ -143,7 +143,6 @@ pub fn mandelbrot(iters: usize, threads: usize, win: Window, wid: u32, hei: u32)
 
     let threads: Vec<thread::JoinHandle<Vec<u8>>> = ranges.into_iter()
         .map(|range|{
-            let win = win.clone();
             std::thread::spawn(move ||{
                 transfer_to_complex(range.0..range.1, win, wid, hei)
                     .map(|c| contains(iters, &c))

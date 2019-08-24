@@ -18,7 +18,6 @@ use crate::mandelbrot::{mandelbrot, Window};
 mod mandelbrot;
 mod gtk_gui;
 
-
 /*
 let win = Window {
     p: (0.2934847027862066,-0.02028183490813784),
