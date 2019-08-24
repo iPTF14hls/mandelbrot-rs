@@ -3,7 +3,6 @@ use num::Complex;
 use std::num::NonZeroUsize;
 use std::thread;
 
-
 #[derive(Clone)]
 pub struct Mandelbrot {
     iters: usize,
